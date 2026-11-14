@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { BookOpen, Rocket, Shirt, Trophy, type LucideIcon } from 'lucide-react'
 import { Avatar } from './avatar'
 import { Joystick } from './joystick'
+import { Kit, type KitPiece } from './kit'
 import { DEMO_PLAYERS } from '@/lib/game/demo'
 import type { Profile } from '@/lib/game/types'
 
@@ -13,13 +14,32 @@ const WORLD = { w: 1600, h: 1000 }
 const SPEED = 260
 const SPAWN = { x: 800, y: 560 }
 
-const ZONES: { id: ViewId; label: string; sub: string; x: number; y: number; icon: LucideIcon; color: string }[] = [
-  { id: 'misiones', label: 'Centro de Misiones', sub: 'Elegí y jugá misiones', x: 800, y: 300, icon: Rocket, color: 'var(--color-primary)' },
-  { id: 'hangar', label: 'Hangar de Avatares', sub: 'Cambiá tu estilo y traje', x: 380, y: 560, icon: Shirt, color: 'var(--color-chart-2)' },
-  { id: 'resultados', label: 'Torre de Resultados', sub: 'Ranking y medallas', x: 1220, y: 560, icon: Trophy, color: 'var(--color-accent)' },
-  { id: 'aprende', label: 'Biblioteca Espacial', sub: 'Conceptos en simple', x: 800, y: 820, icon: BookOpen, color: 'var(--color-success)' },
+const ZONES: {
+  id: ViewId
+  label: string
+  sub: string
+  x: number
+  y: number
+  icon: LucideIcon
+  color: string
+  build: [KitPiece, KitPiece, KitPiece]
+}[] = [
+  { id: 'misiones', label: 'Centro de Misiones', sub: 'Elegí y jugá misiones', x: 800, y: 330, icon: Rocket, color: 'var(--color-primary)', build: ['robot-arm-b', 'machine-fortified', 'crane'] },
+  { id: 'hangar', label: 'Hangar de Avatares', sub: 'Cambiá tu estilo y traje', x: 360, y: 580, icon: Shirt, color: 'var(--color-chart-2)', build: ['box-large', 'structure-doorway-wide', 'lever-double'] },
+  { id: 'resultados', label: 'Torre de Resultados', sub: 'Ranking y medallas', x: 1240, y: 580, icon: Trophy, color: 'var(--color-accent)', build: ['screen-panel-wide', 'structure-yellow-tall', 'screen-wide'] },
+  { id: 'aprende', label: 'Biblioteca Espacial', sub: 'Conceptos en simple', x: 800, y: 850, icon: BookOpen, color: 'var(--color-success)', build: ['screen-small', 'structure-window', 'scanner-high'] },
 ]
-const ZONE_RADIUS = 90
+const ZONE_RADIUS = 95
+
+const DECOR: { piece: KitPiece; x: number; y: number; size: number }[] = [
+  { piece: 'pipe-glass-large-curve', x: 150, y: 190, size: 110 },
+  { piece: 'cog-a', x: 580, y: 170, size: 64 },
+  { piece: 'box-large', x: 1070, y: 210, size: 80 },
+  { piece: 'piston-round', x: 480, y: 770, size: 80 },
+  { piece: 'pipe-large-bend', x: 1090, y: 800, size: 100 },
+  { piece: 'crane-magnet', x: 1410, y: 390, size: 110 },
+  { piece: 'oopi', x: 600, y: 630, size: 48 },
+]
 
 const NPCS = DEMO_PLAYERS.slice(0, 6).map((p, i) => ({
   ...p,
@@ -124,7 +144,8 @@ export function Universe({ profile, onEnter }: { profile: Profile; onEnter: (vie
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-bold md:text-3xl">Estación Orbital</h1>
+          <p className="hud-label">Sector 01 · Mundo abierto</p>
+          <h1 className="text-2xl font-bold uppercase tracking-wide md:text-3xl">Estación Orbital</h1>
           <p className="text-sm text-muted-foreground">
             Mové a {profile.name} hasta una plataforma para entrar.{' '}
             <span className="hidden md:inline">Usá WASD o las flechas y presioná Enter.</span>
@@ -137,8 +158,10 @@ export function Universe({ profile, onEnter }: { profile: Profile; onEnter: (vie
               key={z.id}
               type="button"
               onClick={() => onEnter(z.id)}
-              className="rounded-full border border-border bg-card px-3 py-1.5 text-xs hover:border-primary"
+              className="hud flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition-colors hover:text-primary"
+              style={{ ['--cut' as string]: '6px' }}
             >
+              <z.icon className="size-3.5" style={{ color: z.color }} aria-hidden />
               {z.label}
             </button>
           ))}
@@ -147,7 +170,7 @@ export function Universe({ profile, onEnter }: { profile: Profile; onEnter: (vie
 
       <div
         ref={viewportRef}
-        className="starfield relative h-[calc(100dvh-13rem)] min-h-[380px] overflow-hidden rounded-3xl border border-border md:h-[calc(100dvh-11rem)]"
+        className="starfield relative h-[calc(100dvh-14rem)] min-h-[380px] overflow-hidden rounded-xl border-2 border-border md:h-[calc(100dvh-12rem)]"
       >
         <div ref={worldRef} className="absolute left-0 top-0 will-change-transform" style={{ width: WORLD.w, height: WORLD.h }}>
           <div
@@ -158,7 +181,6 @@ export function Universe({ profile, onEnter }: { profile: Profile; onEnter: (vie
               width: 260,
               height: 260,
               background: 'radial-gradient(circle at 35% 35%, #fb923c, #c2410c 55%, #431407)',
-              boxShadow: '0 0 80px #f9731655',
             }}
             aria-hidden
           />
@@ -170,20 +192,34 @@ export function Universe({ profile, onEnter }: { profile: Profile; onEnter: (vie
               width: 200,
               height: 200,
               background: 'radial-gradient(circle at 35% 35%, #7dd3fc, #2563eb 55%, #172554)',
-              boxShadow: '0 0 80px #3b82f655',
             }}
             aria-hidden
           />
           <div
-            className="absolute rounded-full border-[18px] border-secondary/80"
-            style={{ left: 380, top: 300, width: 840, height: 520 }}
+            className="deck absolute rounded-[48px] border-2 border-border/80"
+            style={{ left: 90, top: 110, width: 1420, height: 840 }}
             aria-hidden
           />
           <div
-            className="absolute rounded-full border border-dashed border-primary/20"
-            style={{ left: 280, top: 200, width: 1040, height: 720 }}
+            className="absolute rounded-full border-[14px] border-secondary/70"
+            style={{ left: 380, top: 350, width: 840, height: 480 }}
             aria-hidden
           />
+          <div
+            className="absolute rounded-full border-2 border-dashed border-primary/30"
+            style={{ left: 410, top: 380, width: 780, height: 420 }}
+            aria-hidden
+          />
+
+          {DECOR.map((d, i) => (
+            <Kit
+              key={i}
+              piece={d.piece}
+              size={d.size}
+              className="pointer-events-none absolute"
+              style={{ left: d.x - d.size / 2, top: d.y - d.size / 2 }}
+            />
+          ))}
 
           {ZONES.map((z) => {
             const Icon = z.icon
@@ -193,24 +229,34 @@ export function Universe({ profile, onEnter }: { profile: Profile; onEnter: (vie
                 key={z.id}
                 type="button"
                 onClick={() => onEnter(z.id)}
-                className="absolute flex flex-col items-center gap-2"
-                style={{ left: z.x - ZONE_RADIUS, top: z.y - ZONE_RADIUS, width: ZONE_RADIUS * 2 }}
+                className="group absolute flex flex-col items-center"
+                style={{ left: z.x - 130, top: z.y - 170, width: 260 }}
                 aria-label={`Entrar a ${z.label}`}
               >
-                <span
-                  className="flex items-center justify-center rounded-full border-4 transition-all"
-                  style={{
-                    width: ZONE_RADIUS * 2,
-                    height: ZONE_RADIUS * 2,
-                    borderColor: z.color,
-                    background: `radial-gradient(circle, color-mix(in oklch, ${z.color} 35%, transparent), transparent 70%)`,
-                    boxShadow: active ? `0 0 60px ${z.color}` : `0 0 20px color-mix(in oklch, ${z.color} 40%, transparent)`,
-                    transform: active ? 'scale(1.06)' : undefined,
-                  }}
-                >
-                  <Icon className="size-12" style={{ color: z.color }} aria-hidden />
+                <span className="relative z-[1] flex h-[150px] items-end justify-center">
+                  <Kit piece={z.build[0]} size={92} className="-mr-6 mb-2" />
+                  <Kit
+                    piece={z.build[1]}
+                    size={140}
+                    className="transition-transform duration-300 group-hover:-translate-y-1"
+                    style={{ transform: active ? 'translateY(-6px)' : undefined }}
+                  />
+                  <Kit piece={z.build[2]} size={92} className="-ml-6 mb-2" />
                 </span>
-                <span className="whitespace-nowrap rounded-full bg-background/80 px-3 py-1 text-sm font-semibold backdrop-blur">
+                <span
+                  className="-mt-12 h-[100px] w-[240px] rounded-[50%] border-[3px] transition-[border-width]"
+                  style={{
+                    borderColor: z.color,
+                    borderWidth: active ? 5 : 3,
+                    background: `radial-gradient(ellipse, color-mix(in oklch, ${z.color} ${active ? 60 : 32}%, transparent), transparent 70%)`,
+                  }}
+                  aria-hidden
+                />
+                <span
+                  className="hud mt-2 flex items-center gap-2 whitespace-nowrap px-4 py-1.5 text-sm font-bold"
+                  style={{ ['--cut' as string]: '8px' }}
+                >
+                  <Icon className="size-4" style={{ color: z.color }} aria-hidden />
                   {z.label}
                 </span>
               </button>
@@ -223,7 +269,7 @@ export function Universe({ profile, onEnter }: { profile: Profile; onEnter: (vie
               ref={(el) => {
                 npcRefs.current[i] = el
               }}
-              className="pointer-events-none absolute left-0 top-0 flex flex-col items-center"
+              className="pointer-events-none absolute left-0 top-0 flex flex-col items-center will-change-transform"
               aria-hidden
             >
               <Avatar config={n.avatar} suited={i % 2 === 0} className="h-16 w-12" />
@@ -233,7 +279,7 @@ export function Universe({ profile, onEnter }: { profile: Profile; onEnter: (vie
             </div>
           ))}
 
-          <div ref={playerRef} className="pointer-events-none absolute left-0 top-0 z-10 flex flex-col items-center">
+          <div ref={playerRef} className="pointer-events-none absolute left-0 top-0 z-10 flex flex-col items-center will-change-transform">
             <span className="mb-1 whitespace-nowrap rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-primary-foreground">
               {profile.name}
             </span>
@@ -244,17 +290,16 @@ export function Universe({ profile, onEnter }: { profile: Profile; onEnter: (vie
         </div>
 
         {nearZone && (
-          <div className="absolute inset-x-3 top-3 z-20 mx-auto flex max-w-sm items-center gap-3 rounded-2xl border border-border bg-card/95 p-3 shadow-xl backdrop-blur animate-in fade-in slide-in-from-top-2">
-            <nearZone.icon className="size-8 shrink-0" style={{ color: nearZone.color }} aria-hidden />
+          <div className="hud absolute inset-x-3 top-3 z-20 mx-auto flex max-w-sm items-center gap-3 p-3 shadow-xl animate-in fade-in slide-in-from-top-2">
+            <span className="slot flex size-12 shrink-0 items-center justify-center rounded-md">
+              <Kit piece={nearZone.build[1]} size={44} />
+            </span>
             <div className="min-w-0 flex-1">
-              <p className="font-semibold">{nearZone.label}</p>
+              <p className="hud-label">Zona detectada</p>
+              <p className="font-bold">{nearZone.label}</p>
               <p className="text-xs text-muted-foreground">{nearZone.sub}</p>
             </div>
-            <button
-              type="button"
-              onClick={() => onEnter(nearZone.id)}
-              className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
-            >
+            <button type="button" onClick={() => onEnter(nearZone.id)} className="btn-game h-10 px-4 text-sm">
               Entrar
             </button>
           </div>

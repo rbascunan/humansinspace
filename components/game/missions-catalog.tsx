@@ -19,8 +19,8 @@ export function MissionsCatalog({ profile, onPlay }: { profile: Profile; onPlay:
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <p className="font-mono text-xs uppercase tracking-widest text-accent">Centro de misiones</p>
-        <h1 className="text-3xl font-bold">Misiones</h1>
+        <p className="hud-label">Centro de misiones</p>
+        <h1 className="text-3xl font-bold uppercase tracking-wide">Misiones</h1>
         <p className="text-pretty text-muted-foreground">
           Planificá, tomá decisiones, administrá recursos y simulá. Las recomendadas coinciden con tus intereses.
         </p>
@@ -32,10 +32,8 @@ export function MissionsCatalog({ profile, onPlay }: { profile: Profile; onPlay:
           return (
             <article
               key={m.id}
-              className={cn(
-                'group flex flex-col overflow-hidden rounded-3xl border bg-card transition-colors',
-                m.playable ? 'border-border hover:border-primary/70' : 'border-border/60',
-              )}
+              className={cn('hud group flex flex-col overflow-hidden transition-transform', m.playable && 'hover:-translate-y-1')}
+              style={{ ['--cut' as string]: '20px' }}
             >
               <div className="relative">
                 <Image
@@ -81,7 +79,7 @@ export function MissionsCatalog({ profile, onPlay }: { profile: Profile; onPlay:
                     <button
                       type="button"
                       onClick={() => onPlay(m.id)}
-                      className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary font-semibold text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="btn-game h-12 w-full"
                     >
                       <Play className="size-4" aria-hidden /> {record ? 'Jugar otra vez' : 'Iniciar misión'}
                     </button>

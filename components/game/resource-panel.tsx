@@ -35,8 +35,8 @@ export function ResourcePanel({
     )
   }
   return (
-    <section aria-label={title} className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-4">
-      <h3 className="font-mono text-xs uppercase tracking-widest text-muted-foreground">{title}</h3>
+    <section aria-label={title} className="hud flex flex-col gap-4 p-4">
+      <h3 className="hud-label">{title}</h3>
       {specs.map((s) => (
         <Meter key={s.key} spec={s} value={values[s.key]} baseline={baseline?.[s.key]} />
       ))}
@@ -104,14 +104,20 @@ function Meter({
         </span>
       </div>
       <div
-        className="relative h-2.5 overflow-hidden rounded-full bg-muted"
+        className="relative h-3 overflow-hidden rounded-sm border border-border bg-muted"
         role="meter"
         aria-label={meta.label}
         aria-valuemin={0}
         aria-valuemax={spec.max}
         aria-valuenow={value}
       >
-        <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, backgroundColor: color }} />
+        <div
+          className="h-full transition-all duration-700"
+          style={{
+            width: `${pct}%`,
+            background: `repeating-linear-gradient(90deg, ${color} 0 8px, color-mix(in oklch, ${color} 70%, black) 8px 10px)`,
+          }}
+        />
       </div>
       {over && (
         <p className="text-xs text-destructive">

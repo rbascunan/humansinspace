@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import { CircleHelp, Rocket, ThumbsDown, ThumbsUp, TriangleAlert } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ResourcePanel } from './resource-panel'
+import { Kit, equipmentPiece } from './kit'
 import { RESOURCE_META } from '@/lib/game/meta'
 import { getConcept } from '@/lib/game/glossary'
 import { planIssues, planResources, type Choices } from '@/lib/game/simulate'
@@ -54,13 +55,35 @@ export function MissionDesign({
         <div className="hidden lg:block">
           <ResourcePanel specs={mission.resources} values={planned} baseline={baseline} />
         </div>
-        <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4">
-          <p className="text-sm">
-            <span className="font-mono font-semibold text-primary">
+        <div className="hud hud-warm flex flex-col gap-3 p-4">
+          <div className="flex items-baseline justify-between">
+            <p className="hud-label">Inventario de la nave</p>
+            <p className="font-mono text-sm font-bold text-primary">
               {answered}/{mission.decisions.length}
-            </span>{' '}
-            decisiones tomadas
-          </p>
+            </p>
+          </div>
+          <ul className="grid grid-cols-5 gap-1.5" aria-label="Equipamiento seleccionado">
+            {mission.decisions.map((d, i) => {
+              const optIndex = d.options.findIndex((o) => o.id === choices[d.id])
+              const opt = d.options[optIndex]
+              return (
+                <li
+                  key={d.id}
+                  className={cn(
+                    'slot flex aspect-square items-center justify-center rounded-md border',
+                    opt ? 'border-primary' : 'border-dashed border-border',
+                  )}
+                  title={opt ? opt.label : `Módulo ${i + 1} vacío`}
+                >
+                  {opt ? (
+                    <Kit piece={equipmentPiece(i, optIndex)} size={44} alt={opt.label} />
+                  ) : (
+                    <span className="font-mono text-[10px] text-muted-foreground">{i + 1}</span>
+                  )}
+                </li>
+              )
+            })}
+          </ul>
           {[...blocking, ...warnings].map((w) => (
             <p
               key={w}
@@ -73,9 +96,9 @@ export function MissionDesign({
               {w}
             </p>
           ))}
-          <Button className="h-12 text-base font-semibold" disabled={blocking.length > 0} onClick={onLaunch}>
-            <Rocket /> Lanzar simulación
-          </Button>
+          <button type="button" className="btn-game h-12 text-base" disabled={blocking.length > 0} onClick={onLaunch}>
+            <Rocket className="size-5" aria-hidden /> Lanzar simulación
+          </button>
         </div>
       </aside>
     </div>
@@ -97,10 +120,10 @@ function DecisionCard({
   const concept = getConcept(decision.conceptId)
 
   return (
-    <section className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4" aria-labelledby={`q-${decision.id}`}>
+    <section className="hud flex flex-col gap-3 p-4" aria-labelledby={`q-${decision.id}`}>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="font-mono text-xs text-accent">DECISIÓN {index + 1}</p>
+          <p className="hud-label">Módulo {index + 1} · Elegí equipamiento</p>
           <h3 id={`q-${decision.id}`} className="text-lg font-semibold">
             {decision.question}
           </h3>
@@ -126,7 +149,7 @@ function DecisionCard({
         </div>
       )}
       <div className="grid gap-2 md:grid-cols-3" role="radiogroup" aria-labelledby={`q-${decision.id}`}>
-        {decision.options.map((o) => {
+        {decision.options.map((o, j) => {
           const active = selected === o.id
           return (
             <button
@@ -136,13 +159,21 @@ function DecisionCard({
               aria-checked={active}
               onClick={() => onSelect(o.id)}
               className={cn(
-                'flex flex-col gap-2 rounded-xl border p-3 text-left transition-all',
+                'relative flex flex-col gap-2 rounded-lg border-2 p-3 text-left transition-all',
                 active
-                  ? 'border-primary bg-primary/10 shadow-[0_0_20px_-8px_var(--color-primary)]'
-                  : 'border-border bg-background/40 hover:border-primary/60',
+                  ? 'border-primary bg-primary/10 shadow-[0_0_24px_-8px_var(--color-primary)]'
+                  : 'border-border bg-background/40 hover:-translate-y-0.5 hover:border-primary/60',
               )}
             >
-              <span className="font-semibold">{o.label}</span>
+              {active && (
+                <span className="absolute right-2 top-2 rounded bg-primary px-1.5 py-0.5 font-mono text-[10px] font-bold uppercase text-primary-foreground">
+                  Equipado
+                </span>
+              )}
+              <span className="slot flex h-20 items-center justify-center rounded-md">
+                <Kit piece={equipmentPiece(index, j)} size={72} className={cn('transition-transform', active && 'scale-110')} />
+              </span>
+              <span className="font-bold">{o.label}</span>
               <span className="text-xs text-muted-foreground">{o.description}</span>
               <span className="flex items-start gap-1.5 text-xs text-success">
                 <ThumbsUp className="mt-0.5 size-3 shrink-0" aria-hidden /> {o.pros}

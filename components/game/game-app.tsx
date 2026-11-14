@@ -11,7 +11,7 @@ import { ResultsView } from './results-view'
 import { LearnView } from './learn-view'
 import { HangarView } from './hangar-view'
 import { getMission } from '@/lib/game/missions'
-import { levelFromXp } from '@/lib/game/meta'
+import { levelFromXp, levelTitle } from '@/lib/game/meta'
 import { logout, useProfile } from '@/lib/game/store'
 import { cn } from '@/lib/utils'
 
@@ -47,37 +47,59 @@ export function GameApp() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4">
+      <header className="sticky top-0 z-30 border-b-2 border-border bg-background/90 backdrop-blur">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
           <button type="button" onClick={() => go('universo')} aria-label="Ir al universo">
             <Logo />
           </button>
-          <nav className="hidden items-center gap-1 md:flex" aria-label="Principal">
-            {NAV.map((n) => (
-              <button
-                key={n.id}
-                type="button"
-                onClick={() => go(n.id)}
-                aria-current={view === n.id ? 'page' : undefined}
-                className={cn(
-                  'flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium transition-colors',
-                  view === n.id ? 'bg-secondary text-foreground' : 'text-muted-foreground hover:text-foreground',
-                )}
-              >
-                <n.icon className="size-4" aria-hidden />
-                {n.label}
-              </button>
-            ))}
+          <nav className="hidden h-full items-stretch md:flex" aria-label="Principal">
+            {NAV.map((n) => {
+              const active = view === n.id && !mission
+              return (
+                <button
+                  key={n.id}
+                  type="button"
+                  onClick={() => go(n.id)}
+                  aria-current={active ? 'page' : undefined}
+                  className={cn(
+                    'relative flex items-center gap-2 px-3 text-xs font-bold uppercase tracking-wider transition-colors',
+                    active ? 'text-primary' : 'text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  <n.icon className="size-4" aria-hidden />
+                  {n.label}
+                  {active && <span className="absolute inset-x-2 -bottom-0.5 h-1 rounded-t bg-primary" aria-hidden />}
+                </button>
+              )
+            })}
           </nav>
           <div className="flex items-center gap-3">
-            <div className="text-right leading-tight">
-              <p className="max-w-28 truncate text-sm font-semibold">{profile.name}</p>
-              <p className="font-mono text-[11px] text-muted-foreground">
-                Nv {lvl.level} · <span className="text-primary">{profile.points} pts</span>
+            <div className="hidden min-w-32 flex-col gap-1 sm:flex">
+              <p className="flex items-baseline justify-between gap-2 leading-none">
+                <span className="max-w-28 truncate text-sm font-bold">{profile.name}</span>
+                <span className="font-mono text-[11px] text-primary">{profile.points} pts</span>
+              </p>
+              <div
+                className="h-1.5 w-full overflow-hidden rounded-sm bg-muted"
+                role="meter"
+                aria-label={`Experiencia del nivel ${lvl.level}`}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(lvl.progress * 100)}
+              >
+                <div className="xp-bar h-full transition-all" style={{ width: `${Math.max(4, lvl.progress * 100)}%` }} />
+              </div>
+              <p className="font-mono text-[10px] uppercase leading-none text-muted-foreground">
+                {levelTitle(lvl.level)} · {lvl.toNext} XP al Nv {lvl.level + 1}
               </p>
             </div>
-            <span className="flex size-10 items-center justify-center overflow-hidden rounded-full border border-border bg-card">
-              <Avatar config={profile.avatar} className="mt-3 h-12 w-auto" />
+            <span className="relative">
+              <span className="flex size-11 items-center justify-center overflow-hidden rounded-lg border-2 border-accent bg-card">
+                <Avatar config={profile.avatar} className="mt-3 h-12 w-auto" />
+              </span>
+              <span className="absolute -bottom-1.5 -right-1.5 flex size-5 items-center justify-center rounded bg-primary font-mono text-[10px] font-bold text-primary-foreground">
+                {lvl.level}
+              </span>
             </span>
             <button
               type="button"
@@ -122,7 +144,7 @@ export function GameApp() {
       </main>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t-2 border-border bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
         aria-label="Principal"
       >
         {NAV.map((n) => {
@@ -134,10 +156,11 @@ export function GameApp() {
               onClick={() => go(n.id)}
               aria-current={active ? 'page' : undefined}
               className={cn(
-                'flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium',
+                'relative flex flex-col items-center gap-0.5 py-2 text-[10px] font-bold uppercase tracking-wide',
                 active ? 'text-primary' : 'text-muted-foreground',
               )}
             >
+              {active && <span className="absolute inset-x-4 top-0 h-1 rounded-b bg-primary" aria-hidden />}
               <n.icon className="size-5" aria-hidden />
               {n.label}
             </button>
