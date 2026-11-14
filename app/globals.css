@@ -168,8 +168,8 @@
     8px 8px;
 }
 
-.kit {
-  image-rendering: pixelated;
+  .kit {
+
   user-select: none;
   -webkit-user-drag: none;
 }

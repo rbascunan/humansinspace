@@ -12,13 +12,13 @@ import { Kit, type KitPiece } from './kit'
 import { cn } from '@/lib/utils'
 
 const MEDAL_PIECES: Record<string, KitPiece> = {
-  explorador: 'scanner-high',
-  perfecta: 'cog-a',
-  recursos: 'hopper-high-round',
-  estratega: 'robot-arm-a',
-  rescatista: 'crane-magnet',
-  pionero: 'machine-window',
-  equipo: 'box-large',
+  explorador: 'rover',
+  perfecta: 'planet-5',
+  recursos: 'generator',
+  estratega: 'satellite-dish-large',
+  rescatista: 'ship-speeder',
+  pionero: 'hangar-large',
+  equipo: 'astronaut-a',
 }
 
 function InventoryPanel({ profile }: { profile: Profile }) {
@@ -28,7 +28,7 @@ function InventoryPanel({ profile }: { profile: Profile }) {
     <section className="hud hud-warm flex flex-col gap-4 p-4 md:flex-row md:items-center" aria-label="Inventario y logros">
       <div className="flex shrink-0 items-center gap-4 md:w-64">
         <span className="slot relative flex size-20 items-center justify-center rounded-lg border-2 border-accent">
-          <Kit piece="oopi" size={56} />
+          <Kit piece="astronaut-b" size={56} />
           <span className="absolute -bottom-2 -right-2 flex size-7 items-center justify-center rounded bg-primary font-mono text-xs font-bold text-primary-foreground">
             {lvl.level}
           </span>
@@ -61,7 +61,7 @@ function InventoryPanel({ profile }: { profile: Profile }) {
                 )}
               >
                 <Kit
-                  piece={MEDAL_PIECES[id] ?? 'cog-b'}
+                  piece={MEDAL_PIECES[id] ?? 'meteor'}
                   size={40}
                   alt={owned ? m.label : `${m.label} (bloqueada)`}
                   className={cn(!owned && 'opacity-30 grayscale')}

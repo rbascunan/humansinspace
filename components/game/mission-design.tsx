@@ -76,7 +76,7 @@ export function MissionDesign({
                   title={opt ? opt.label : `Módulo ${i + 1} vacío`}
                 >
                   {opt ? (
-                    <Kit piece={equipmentPiece(i, optIndex)} size={44} alt={opt.label} />
+                    <Kit piece={equipmentPiece(i, optIndex, `${opt.label} ${opt.description}`)} size={44} alt={opt.label} />
                   ) : (
                     <span className="font-mono text-[10px] text-muted-foreground">{i + 1}</span>
                   )}
@@ -171,7 +171,7 @@ function DecisionCard({
                 </span>
               )}
               <span className="slot flex h-20 items-center justify-center rounded-md">
-                <Kit piece={equipmentPiece(index, j)} size={72} className={cn('transition-transform', active && 'scale-110')} />
+                <Kit piece={equipmentPiece(index, j, `${o.label} ${o.description}`)} size={72} className={cn('transition-transform', active && 'scale-110')} />
               </span>
               <span className="font-bold">{o.label}</span>
               <span className="text-xs text-muted-foreground">{o.description}</span>

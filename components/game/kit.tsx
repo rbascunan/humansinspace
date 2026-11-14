@@ -2,37 +2,42 @@ import Image from 'next/image'
 import { cn } from '@/lib/utils'
 
 export type KitPiece =
-  | 'structure-tall'
-  | 'structure-yellow-tall'
-  | 'structure-window'
-  | 'structure-doorway-wide'
-  | 'machine'
-  | 'machine-window'
-  | 'machine-fortified'
-  | 'robot-arm-a'
-  | 'robot-arm-b'
-  | 'crane'
-  | 'crane-magnet'
-  | 'screen-wide'
-  | 'screen-panel-wide'
-  | 'screen-small'
-  | 'scanner-high'
-  | 'cog-a'
-  | 'cog-b'
-  | 'pipe-glass-large-curve'
-  | 'pipe-large-bend'
-  | 'hopper-high-round'
-  | 'box-large'
-  | 'box-small'
-  | 'lever-double'
-  | 'button-floor-round'
-  | 'piston-round'
-  | 'warning-traffic'
-  | 'floor-large'
-  | 'top-large-checkerboard'
-  | 'door-wide-open'
-  | 'indicator-special-arrow'
-  | 'oopi'
+  | 'alien'
+  | 'astronaut-a'
+  | 'astronaut-b'
+  | 'barrel-tank'
+  | 'barrels'
+  | 'computer'
+  | 'computer-screen'
+  | 'corridor'
+  | 'crater'
+  | 'crystals'
+  | 'gate'
+  | 'generator'
+  | 'generator-large'
+  | 'hangar-glass'
+  | 'hangar-large'
+  | 'hangar-small'
+  | 'meteor'
+  | 'monorail'
+  | 'pipe-ring'
+  | 'platform'
+  | 'rock'
+  | 'rocket-base'
+  | 'rocket-fins'
+  | 'rocket-fuel'
+  | 'rocket-top'
+  | 'rover'
+  | 'satellite-dish'
+  | 'satellite-dish-large'
+  | 'ship-cargo'
+  | 'ship-miner'
+  | 'ship-racer'
+  | 'ship-speeder'
+  | 'structure'
+  | 'supports'
+  | 'wireless'
+  | `planet-${0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9}`
 
 export function Kit({
   piece,
@@ -49,12 +54,13 @@ export function Kit({
 }) {
   return (
     <Image
-      src={`/kit/${piece}.png`}
+      src={`/space/${piece}.png`}
       alt={alt}
       aria-hidden={alt ? undefined : true}
       width={size}
       height={size}
       unoptimized
+      loading="eager"
       draggable={false}
       className={cn('kit shrink-0', className)}
       style={style}
@@ -62,21 +68,40 @@ export function Kit({
   )
 }
 
-export const EQUIPMENT_PIECES: KitPiece[] = [
-  'machine-window',
-  'screen-wide',
-  'scanner-high',
-  'robot-arm-a',
-  'hopper-high-round',
-  'piston-round',
-  'pipe-glass-large-curve',
-  'crane-magnet',
-  'machine-fortified',
-  'cog-a',
-  'screen-small',
-  'box-large',
+const KEYWORD_PIECES: [RegExp, KitPiece][] = [
+  [/antena|estación terrena|radioaficionad|ganancia/i, 'satellite-dish-large'],
+  [/radio|transmisor|contacto|comunicaci/i, 'wireless'],
+  [/apuntar|giro|barrido|mover/i, 'satellite-dish'],
+  [/computadora|reinici|software|diagnóstico|telemetr/i, 'computer-screen'],
+  [/datos|ciencia|instrumento/i, 'computer'],
+  [/solar|panel/i, 'generator'],
+  [/nuclear|rtg|generador/i, 'generator-large'],
+  [/batería|energía|potencia/i, 'barrel-tank'],
+  [/tonelada|combustible|tanque/i, 'rocket-fuel'],
+  [/carga|\(\d+ t\)/i, 'ship-cargo'],
+  [/mes(es)?\)|rápida|eficiente|ruta|trayectoria/i, 'ship-speeder'],
+  [/refugio|blindaje|radiación/i, 'hangar-glass'],
+  [/traje/i, 'astronaut-b'],
+  [/sin protección|no mover/i, 'rock'],
+  [/rover|vehículo|explor/i, 'rover'],
+  [/base|módulo|hábitat|habitat/i, 'hangar-large'],
+  [/hielo|agua|regolito|cráter/i, 'crystals'],
 ]
 
-export function equipmentPiece(decisionIndex: number, optionIndex: number): KitPiece {
-  return EQUIPMENT_PIECES[(decisionIndex * 3 + optionIndex) % EQUIPMENT_PIECES.length]
+const FALLBACK_PIECES: KitPiece[] = [
+  'satellite-dish',
+  'generator',
+  'computer',
+  'rocket-fuel',
+  'rover',
+  'hangar-small',
+  'ship-cargo',
+  'barrel-tank',
+  'wireless',
+]
+
+export function equipmentPiece(decisionIndex: number, optionIndex: number, text = ''): KitPiece {
+  const match = KEYWORD_PIECES.find(([re]) => re.test(text))
+  if (match) return match[1]
+  return FALLBACK_PIECES[(decisionIndex * 3 + optionIndex) % FALLBACK_PIECES.length]
 }

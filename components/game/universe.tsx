@@ -24,21 +24,21 @@ const ZONES: {
   color: string
   build: [KitPiece, KitPiece, KitPiece]
 }[] = [
-  { id: 'misiones', label: 'Centro de Misiones', sub: 'Elegí y jugá misiones', x: 800, y: 330, icon: Rocket, color: 'var(--color-primary)', build: ['robot-arm-b', 'machine-fortified', 'crane'] },
-  { id: 'hangar', label: 'Hangar de Avatares', sub: 'Cambiá tu estilo y traje', x: 360, y: 580, icon: Shirt, color: 'var(--color-chart-2)', build: ['box-large', 'structure-doorway-wide', 'lever-double'] },
-  { id: 'resultados', label: 'Torre de Resultados', sub: 'Ranking y medallas', x: 1240, y: 580, icon: Trophy, color: 'var(--color-accent)', build: ['screen-panel-wide', 'structure-yellow-tall', 'screen-wide'] },
-  { id: 'aprende', label: 'Biblioteca Espacial', sub: 'Conceptos en simple', x: 800, y: 850, icon: BookOpen, color: 'var(--color-success)', build: ['screen-small', 'structure-window', 'scanner-high'] },
+  { id: 'misiones', label: 'Centro de Misiones', sub: 'Elegí y jugá misiones', x: 800, y: 330, icon: Rocket, color: 'var(--color-primary)', build: ['satellite-dish-large', 'hangar-large', 'ship-speeder'] },
+  { id: 'hangar', label: 'Hangar de Avatares', sub: 'Cambiá tu estilo y traje', x: 360, y: 580, icon: Shirt, color: 'var(--color-chart-2)', build: ['astronaut-a', 'hangar-glass', 'astronaut-b'] },
+  { id: 'resultados', label: 'Torre de Resultados', sub: 'Ranking y medallas', x: 1240, y: 580, icon: Trophy, color: 'var(--color-accent)', build: ['gate', 'supports', 'wireless'] },
+  { id: 'aprende', label: 'Biblioteca Espacial', sub: 'Conceptos en simple', x: 800, y: 850, icon: BookOpen, color: 'var(--color-success)', build: ['computer-screen', 'corridor', 'computer'] },
 ]
 const ZONE_RADIUS = 95
 
 const DECOR: { piece: KitPiece; x: number; y: number; size: number }[] = [
-  { piece: 'pipe-glass-large-curve', x: 150, y: 190, size: 110 },
-  { piece: 'cog-a', x: 580, y: 170, size: 64 },
-  { piece: 'box-large', x: 1070, y: 210, size: 80 },
-  { piece: 'piston-round', x: 480, y: 770, size: 80 },
-  { piece: 'pipe-large-bend', x: 1090, y: 800, size: 100 },
-  { piece: 'crane-magnet', x: 1410, y: 390, size: 110 },
-  { piece: 'oopi', x: 600, y: 630, size: 48 },
+  { piece: 'planet-7', x: 150, y: 190, size: 110 },
+  { piece: 'meteor', x: 580, y: 170, size: 56 },
+  { piece: 'planet-3', x: 1070, y: 210, size: 72 },
+  { piece: 'rover', x: 480, y: 770, size: 80 },
+  { piece: 'crystals', x: 1090, y: 800, size: 90 },
+  { piece: 'ship-cargo', x: 1410, y: 390, size: 110 },
+  { piece: 'alien', x: 600, y: 630, size: 52 },
 ]
 
 const NPCS = DEMO_PLAYERS.slice(0, 6).map((p, i) => ({
