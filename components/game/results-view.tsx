@@ -3,7 +3,9 @@
 import { useState } from 'react'
 import { Award, Medal, Rocket, Star, Users } from 'lucide-react'
 import { Avatar } from './avatar'
-import { DEMO_PLAYERS, TEAMS } from '@/lib/game/demo'
+import { Flag } from './flag'
+import { usePlayers, type Player } from '@/lib/game/store'
+import { countryName } from '@/lib/game/countries'
 import { MEDALS, levelFromXp, levelTitle } from '@/lib/game/meta'
 import { MISSIONS } from '@/lib/game/missions'
 import type { Profile } from '@/lib/game/types'
@@ -143,18 +145,33 @@ function MyProgress({ profile }: { profile: Profile }) {
 
 function GlobalResults({ profile }: { profile: Profile }) {
   const [missionId, setMissionId] = useState<string>('all')
-  const me = {
+  const me: Player = {
     id: profile.id,
     name: profile.name,
     team: profile.team,
+    country: profile.country,
     avatar: profile.avatar,
     points: profile.points,
     missions: Object.values(profile.missions).filter((m) => m.bestStatus !== 'fallida').length,
     medals: profile.medals.length,
     best: Object.fromEntries(Object.entries(profile.missions).map(([k, v]) => [k, v.bestScore])),
   }
-  const all = [...DEMO_PLAYERS, me]
-  const value = (p: typeof me) => (missionId === 'all' ? p.points : (p.best[missionId] ?? 0))
+  const { data: players, isLoading } = usePlayers()
+  const all: Player[] = [...(players ?? []).filter((p) => p.id !== me.id), me]
+  const TEAMS = Array.from(
+    all
+      .reduce((map, p) => {
+        const t = map.get(p.team) ?? { name: p.team, points: 0, members: 0 }
+        t.points += p.points
+        t.members += 1
+        map.set(p.team, t)
+        return map
+      }, new Map<string, { name: string; points: number; members: number }>())
+      .values(),
+  )
+    .sort((x, y) => y.points - x.points)
+    .slice(0, 8)
+  const value = (p: Player) => (missionId === 'all' ? p.points : (p.best[missionId] ?? 0))
   const ranking = all.filter((p) => value(p) > 0 || p.id === me.id).sort((a, b) => value(b) - value(a))
   const totalMissions = all.reduce((a, p) => a + p.missions, 0)
   const totalMedals = all.reduce((a, p) => a + p.medals, 0)
@@ -204,7 +221,12 @@ function GlobalResults({ profile }: { profile: Profile }) {
                 <span className="block truncate font-medium">
                   {p.name} {p.id === me.id && <span className="text-xs text-primary">(vos)</span>}
                 </span>
-                <span className="block truncate text-xs text-muted-foreground">{p.team}</span>
+                <span className="flex items-center gap-1.5 truncate text-xs text-muted-foreground">
+                  <Flag code={p.country} className="h-3 w-4" />
+                  <span className="truncate">
+                    {countryName(p.country)} · {p.team}
+                  </span>
+                </span>
               </span>
               <span className="hidden text-xs text-muted-foreground sm:block">{p.medals} medallas</span>
               <span className="font-mono font-semibold">{value(p)}</span>
@@ -236,7 +258,9 @@ function GlobalResults({ profile }: { profile: Profile }) {
             ))}
           </ol>
         </section>
-        <p className="text-xs text-muted-foreground">Jugadores y equipos de demostración para el prototipo.</p>
+        <p className="text-xs text-muted-foreground">
+          {isLoading ? 'Cargando ranking global…' : 'Ranking global en vivo. Se actualiza cada 30 segundos.'}
+        </p>
       </div>
     </div>
   )

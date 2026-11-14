@@ -129,6 +129,7 @@ export type Profile = {
   id: string
   name: string
   team: string
+  country: string | null
   avatar: AvatarConfig
   interests: InterestId[]
   points: number

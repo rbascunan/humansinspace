@@ -1,11 +1,12 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { BookOpen, Rocket, Shirt, Trophy, type LucideIcon } from 'lucide-react'
 import { Avatar } from './avatar'
+import { Flag } from './flag'
 import { Joystick } from './joystick'
 import { Kit, type KitPiece } from './kit'
-import { DEMO_PLAYERS } from '@/lib/game/demo'
+import { usePlayers, type Player } from '@/lib/game/store'
 import type { Profile } from '@/lib/game/types'
 
 export type ViewId = 'universo' | 'misiones' | 'resultados' | 'aprende' | 'hangar'
@@ -41,16 +42,24 @@ const DECOR: { piece: KitPiece; x: number; y: number; size: number }[] = [
   { piece: 'alien', x: 600, y: 630, size: 52 },
 ]
 
-const NPCS = DEMO_PLAYERS.slice(0, 6).map((p, i) => ({
-  ...p,
-  cx: 300 + ((i * 237) % 1000),
-  cy: 220 + ((i * 173) % 600),
-  rx: 60 + (i % 3) * 30,
-  ry: 40 + (i % 2) * 30,
-  speed: 0.25 + (i % 4) * 0.08,
-}))
+const MAX_NPCS = 8
+
+function toNpcs(players: Player[]) {
+  return players.slice(0, MAX_NPCS).map((p, i) => ({
+    ...p,
+    cx: 300 + ((i * 237) % 1000),
+    cy: 220 + ((i * 173) % 600),
+    rx: 60 + (i % 3) * 30,
+    ry: 40 + (i % 2) * 30,
+    speed: 0.25 + (i % 4) * 0.08,
+  }))
+}
 
 export function Universe({ profile, onEnter }: { profile: Profile; onEnter: (view: ViewId) => void }) {
+  const { data: players } = usePlayers()
+  const NPCS = useMemo(() => toNpcs((players ?? []).filter((p) => p.id !== profile.id)), [players, profile.id])
+  const npcsRef = useRef(NPCS)
+  npcsRef.current = NPCS
   const viewportRef = useRef<HTMLDivElement>(null)
   const worldRef = useRef<HTMLDivElement>(null)
   const playerRef = useRef<HTMLDivElement>(null)
@@ -115,7 +124,7 @@ export function Universe({ profile, onEnter }: { profile: Profile; onEnter: (vie
       if (playerRef.current) playerRef.current.style.transform = `translate3d(${p.x - 32}px, ${p.y - 86}px, 0)`
 
       const t = now / 1000
-      NPCS.forEach((n, i) => {
+      npcsRef.current.forEach((n, i) => {
         const el = npcRefs.current[i]
         if (!el) return
         const x = n.cx + Math.cos(t * n.speed + i) * n.rx
@@ -273,14 +282,16 @@ export function Universe({ profile, onEnter }: { profile: Profile; onEnter: (vie
               aria-hidden
             >
               <Avatar config={n.avatar} suited={i % 2 === 0} className="h-16 w-12" />
-              <span className="whitespace-nowrap rounded bg-background/70 px-1.5 text-[10px] text-muted-foreground">
+              <span className="flex items-center gap-1 whitespace-nowrap rounded bg-background/70 px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                <Flag code={n.country} className="h-2.5 w-3.5" />
                 {n.name}
               </span>
             </div>
           ))}
 
           <div ref={playerRef} className="pointer-events-none absolute left-0 top-0 z-10 flex flex-col items-center will-change-transform">
-            <span className="mb-1 whitespace-nowrap rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-primary-foreground">
+            <span className="mb-1 flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-primary-foreground">
+              <Flag code={profile.country} className="h-3 w-4" />
               {profile.name}
             </span>
             <div style={{ transform: `scaleX(${facing})` }}>

@@ -9,7 +9,8 @@ import { MissionDesign } from './mission-design'
 import { MissionSimulation } from './mission-simulation'
 import { MissionResult } from './mission-result'
 import { planResources, simulate, type Choices } from '@/lib/game/simulate'
-import { recordResult } from '@/lib/game/store'
+import { getAccessToken, refreshProgress } from '@/lib/game/store'
+import { submitMissionResult } from '@/app/actions'
 import type { Mission, Profile, SimulationResult } from '@/lib/game/types'
 
 type Stage = 'plan' | 'design' | 'simulate' | 'result'
@@ -42,10 +43,19 @@ export function MissionRunner({
     setStage('simulate')
   }
 
-  const finishSimulation = () => {
+  const finishSimulation = async () => {
     if (!result) return
-    setPointsGained(recordResult(mission.id, result) ?? 0)
     setStage('result')
+    setPointsGained(0)
+    const token = await getAccessToken()
+    if (!token) return
+    const res = await submitMissionResult(token, mission.id, choices)
+    if ('error' in res) {
+      console.error('[mission] could not save result:', res.error)
+      return
+    }
+    setPointsGained(res.pointsAwarded)
+    refreshProgress()
   }
 
   const stageIndex = STAGES.findIndex((s) => s.id === stage)

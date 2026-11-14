@@ -90,9 +90,14 @@ export function HangarView({ profile, onDone }: { profile: Profile; onDone: () =
         <Button
           className="h-11 px-5 font-semibold"
           disabled={!interests.length}
-          onClick={() => {
-            updateAvatar(avatar, interests)
-            onDone()
+          onClick={async () => {
+            try {
+              await updateAvatar(profile.id, avatar, interests)
+              onDone()
+            } catch (e) {
+              console.error('[hangar] could not save avatar:', e)
+              alert('No pudimos guardar los cambios. Intentá de nuevo.')
+            }
           }}
         >
           <Check /> Guardar cambios

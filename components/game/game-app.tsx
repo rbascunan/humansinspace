@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { BookOpen, LogOut, Orbit, Rocket, Shirt, Trophy, type LucideIcon } from 'lucide-react'
 import { Avatar } from './avatar'
+import { Flag } from './flag'
 import { Onboarding, Logo } from './onboarding'
 import { Universe, type ViewId } from './universe'
 import { MissionsCatalog } from './missions-catalog'
@@ -76,7 +77,10 @@ export function GameApp() {
           <div className="flex items-center gap-3">
             <div className="hidden min-w-32 flex-col gap-1 sm:flex">
               <p className="flex items-baseline justify-between gap-2 leading-none">
-                <span className="max-w-28 truncate text-sm font-bold">{profile.name}</span>
+                <span className="flex min-w-0 items-center gap-1.5">
+                  <Flag code={profile.country} />
+                  <span className="max-w-28 truncate text-sm font-bold">{profile.name}</span>
+                </span>
                 <span className="font-mono text-[11px] text-primary">{profile.points} pts</span>
               </p>
               <div
@@ -104,7 +108,7 @@ export function GameApp() {
             <button
               type="button"
               onClick={() => {
-                if (confirm('¿Salir? Se borrará tu progreso de este dispositivo.')) logout()
+                if (confirm('¿Cerrar sesión? Tu progreso queda guardado en tu cuenta.')) logout()
               }}
               className="rounded-full p-2 text-muted-foreground hover:bg-secondary hover:text-foreground"
               aria-label="Cerrar sesión"

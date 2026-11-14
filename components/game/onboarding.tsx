@@ -1,25 +1,61 @@
 'use client'
 
 import { useState } from 'react'
-import { ArrowLeft, ArrowRight, Rocket } from 'lucide-react'
+import Image from 'next/image'
+import { ArrowLeft, ArrowRight, LoaderCircle, LogIn, Rocket } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Avatar } from './avatar'
 import { AvatarEditor } from './avatar-editor'
 import { InterestPicker } from './interest-picker'
+import { Flag } from './flag'
 import { ARCHETYPES } from '@/lib/game/meta'
-import { createProfile } from '@/lib/game/store'
+import { COUNTRIES } from '@/lib/game/countries'
+import { signIn } from '@/lib/game/store'
+import { signUpPlayer } from '@/app/actions'
 import type { AvatarConfig, InterestId } from '@/lib/game/types'
 
 const STEPS = ['Ingresar', 'Tu avatar', 'Tus intereses'] as const
+const FIELD =
+  'h-12 rounded-xl border border-input bg-card px-4 text-base text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring'
 
 export function Onboarding() {
   const [step, setStep] = useState(0)
+  const [mode, setMode] = useState<'signup' | 'login'>('signup')
   const [name, setName] = useState('')
   const [team, setTeam] = useState('')
+  const [country, setCountry] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [avatar, setAvatar] = useState<AvatarConfig>(ARCHETYPES[1].avatar)
   const [interests, setInterests] = useState<InterestId[]>(ARCHETYPES[1].interests)
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const finish = () => createProfile({ name, team, avatar, interests })
+  const finish = async () => {
+    setPending(true)
+    setError(null)
+    const res = await signUpPlayer({ email, password, name, team, country, avatar, interests })
+    if ('error' in res) {
+      setError(res.error)
+      setPending(false)
+      return
+    }
+    const loginError = await signIn(email, password)
+    if (loginError) {
+      setError(loginError)
+      setPending(false)
+    }
+  }
+
+  const login = async () => {
+    setPending(true)
+    setError(null)
+    const loginError = await signIn(email, password)
+    if (loginError) {
+      setError(loginError)
+      setPending(false)
+    }
+  }
 
   return (
     <main className="starfield min-h-dvh">
@@ -56,42 +92,139 @@ export function Onboarding() {
                 Un universo. Millones de personalidades. Un futuro compartido. Diseñá misiones espaciales reales,
                 tomá decisiones de ingeniería y descubrí cómo cada elección cambia el resultado.
               </p>
-              <form
-                className="flex w-full max-w-md flex-col gap-3 self-center md:self-start"
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  setStep(1)
-                }}
-              >
-                <label className="flex flex-col gap-1 text-left text-sm">
-                  <span className="text-muted-foreground">Tu nombre de jugador</span>
-                  <input
-                    required
-                    autoFocus
-                    maxLength={24}
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Ej: Luz Pampa"
-                    className="h-12 rounded-xl border border-input bg-card px-4 text-base text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  />
-                </label>
-                <label className="flex flex-col gap-1 text-left text-sm">
-                  <span className="text-muted-foreground">Equipo (opcional)</span>
-                  <input
-                    maxLength={24}
-                    value={team}
-                    onChange={(e) => setTeam(e.target.value)}
-                    placeholder="Ej: Andes Rockets"
-                    className="h-12 rounded-xl border border-input bg-card px-4 text-base text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  />
-                </label>
-                <Button type="submit" className="h-12 rounded-xl text-base font-semibold">
-                  Entrar al universo <ArrowRight />
-                </Button>
-                <p className="text-xs text-muted-foreground">
-                  Sin contraseña ni registro: tu progreso se guarda en este dispositivo.
-                </p>
-              </form>
+              <div className="flex w-full max-w-md flex-col gap-3 self-center md:self-start">
+                <div className="flex rounded-full border border-border bg-card p-1 text-sm" role="tablist">
+                  {(
+                    [
+                      ['signup', 'Crear cuenta'],
+                      ['login', 'Ya tengo cuenta'],
+                    ] as const
+                  ).map(([id, label]) => (
+                    <button
+                      key={id}
+                      type="button"
+                      role="tab"
+                      aria-selected={mode === id}
+                      onClick={() => {
+                        setMode(id)
+                        setError(null)
+                      }}
+                      className={
+                        mode === id
+                          ? 'flex-1 rounded-full bg-primary px-4 py-1.5 font-semibold text-primary-foreground'
+                          : 'flex-1 rounded-full px-4 py-1.5 text-muted-foreground hover:text-foreground'
+                      }
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <form
+                  className="flex flex-col gap-3"
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    if (mode === 'login') login()
+                    else {
+                      setError(null)
+                      setStep(1)
+                    }
+                  }}
+                >
+                  {mode === 'signup' && (
+                    <>
+                      <label className="flex flex-col gap-1 text-left text-sm">
+                        <span className="text-muted-foreground">Tu nombre de jugador</span>
+                        <input
+                          required
+                          maxLength={24}
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          placeholder="Ej: Luz Pampa"
+                          className={FIELD}
+                        />
+                      </label>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <label className="flex flex-col gap-1 text-left text-sm">
+                          <span className="text-muted-foreground">Equipo (opcional)</span>
+                          <input
+                            maxLength={24}
+                            value={team}
+                            onChange={(e) => setTeam(e.target.value)}
+                            placeholder="Ej: Andes Rockets"
+                            className={FIELD}
+                          />
+                        </label>
+                        <label className="flex flex-col gap-1 text-left text-sm">
+                          <span className="flex items-center gap-2 text-muted-foreground">
+                            País <Flag code={country} />
+                          </span>
+                          <select
+                            required
+                            value={country}
+                            onChange={(e) => setCountry(e.target.value)}
+                            className={FIELD}
+                          >
+                            <option value="" disabled>
+                              Elegí tu país
+                            </option>
+                            {COUNTRIES.map((c) => (
+                              <option key={c.code} value={c.code}>
+                                {c.name}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                      </div>
+                    </>
+                  )}
+                  <label className="flex flex-col gap-1 text-left text-sm">
+                    <span className="text-muted-foreground">Email</span>
+                    <input
+                      required
+                      type="email"
+                      autoComplete="email"
+                      maxLength={120}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="vos@ejemplo.com"
+                      className={FIELD}
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1 text-left text-sm">
+                    <span className="text-muted-foreground">Contraseña</span>
+                    <input
+                      required
+                      type="password"
+                      autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                      minLength={mode === 'signup' ? 8 : undefined}
+                      maxLength={72}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder={mode === 'signup' ? 'Mínimo 8 caracteres' : 'Tu contraseña'}
+                      className={FIELD}
+                    />
+                  </label>
+                  {error && step === 0 && (
+                    <p role="alert" className="text-left text-sm text-destructive">
+                      {error}
+                    </p>
+                  )}
+                  <Button type="submit" disabled={pending} className="h-12 rounded-xl text-base font-semibold">
+                    {mode === 'login' ? (
+                      <>
+                        {pending ? <LoaderCircle className="animate-spin" /> : <LogIn />} Ingresar
+                      </>
+                    ) : (
+                      <>
+                        Crear mi avatar <ArrowRight />
+                      </>
+                    )}
+                  </Button>
+                  <p className="text-xs text-muted-foreground">
+                    Tu progreso y tus puntos se guardan en tu cuenta y suman al ranking global.
+                  </p>
+                </form>
+              </div>
             </div>
             <div className="flex items-end justify-center gap-2">
               {ARCHETYPES.slice(0, 3).map((a, i) => (
@@ -141,9 +274,16 @@ export function Onboarding() {
                 Siguiente <ArrowRight />
               </Button>
             ) : (
-              <Button className="h-11 px-5 font-semibold" disabled={!interests.length} onClick={finish}>
-                <Rocket /> Despegar
-              </Button>
+              <div className="flex items-center gap-3">
+                {error && (
+                  <p role="alert" className="max-w-xs text-right text-sm text-destructive">
+                    {error}
+                  </p>
+                )}
+                <Button className="h-11 px-5 font-semibold" disabled={!interests.length || pending} onClick={finish}>
+                  {pending ? <LoaderCircle className="animate-spin" /> : <Rocket />} Despegar
+                </Button>
+              </div>
             )}
           </div>
         )}
@@ -155,9 +295,14 @@ export function Onboarding() {
 export function Logo() {
   return (
     <div className="flex items-center gap-2">
-      <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-        <Rocket className="size-5" aria-hidden />
-      </span>
+      <Image
+        src="/images/his-logo.png"
+        alt=""
+        width={44}
+        height={44}
+        priority
+        className="size-11 rounded-full object-cover"
+      />
       <span className="text-lg font-bold leading-none tracking-tight">
         HUMANS <span className="text-primary">IN SPACE</span>
       </span>
