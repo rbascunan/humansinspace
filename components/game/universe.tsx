@@ -42,16 +42,16 @@ const DECOR: { piece: KitPiece; x: number; y: number; size: number }[] = [
   { piece: 'alien', x: 600, y: 630, size: 52 },
 ]
 
-const MAX_NPCS = 8
+const MAX_NPCS = 50
 
 function toNpcs(players: Player[]) {
   return players.slice(0, MAX_NPCS).map((p, i) => ({
     ...p,
-    cx: 300 + ((i * 237) % 1000),
-    cy: 220 + ((i * 173) % 600),
-    rx: 60 + (i % 3) * 30,
-    ry: 40 + (i % 2) * 30,
-    speed: 0.25 + (i % 4) * 0.08,
+    cx: 170 + (((i + 1) * 0.618034) % 1) * 1260,
+    cy: 190 + (((i + 1) * 0.7548776) % 1) * 700,
+    rx: 30 + (i % 4) * 15,
+    ry: 20 + (i % 3) * 15,
+    speed: 0.2 + (i % 5) * 0.06,
   }))
 }
 
@@ -282,9 +282,14 @@ export function Universe({ profile, onEnter }: { profile: Profile; onEnter: (vie
               aria-hidden
             >
               <Avatar config={n.avatar} suited={i % 2 === 0} className="h-16 w-12" />
-              <span className="flex items-center gap-1 whitespace-nowrap rounded bg-background/70 px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                <Flag code={n.country} className="h-2.5 w-3.5" />
-                {n.name}
+              <span className="flex flex-col items-center whitespace-nowrap rounded bg-background/75 px-1.5 py-0.5 leading-tight">
+                <span className="flex items-center gap-1 text-[10px] text-foreground/90">
+                  <Flag code={n.country} className="h-2.5 w-3.5" />
+                  {n.name}
+                </span>
+                {n.avatar.profession && (
+                  <span className="text-[9px] font-medium text-primary">{n.avatar.profession}</span>
+                )}
               </span>
             </div>
           ))}
