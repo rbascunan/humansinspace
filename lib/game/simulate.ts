@@ -115,6 +115,8 @@ export function simulate(mission: Mission, choices: Choices, profile: Profile | 
   if (status === 'exitosa' && dangers === 0) medals.push('estratega')
   if (mission.id === 'usat1' && status === 'exitosa') medals.push('rescatista')
   if (mission.id === 'mars' && flags.has('landed')) medals.push('pionero')
+  if (mission.id === 'moonbase' && flags.has('built') && ctx.res.survival >= 50) medals.push('lunar')
+  if (mission.id === 'mendosat' && flags.has('contact')) medals.push('lanzador')
 
   const done = objectives.filter((o) => o.done).map((o) => o.label.toLowerCase())
   const pending = objectives.filter((o) => !o.done)

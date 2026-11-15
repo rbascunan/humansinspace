@@ -118,6 +118,22 @@ export async function submitMissionResult(
     p_xp: Math.round(result.xp),
     p_medals: result.medals,
     p_choices: choices,
+    p_details: {
+      headline: result.headline,
+      explanation: result.explanation,
+      fatal: result.fatal,
+      startResources: result.startResources,
+      finalResources: result.finalResources,
+      objectives: result.objectives.map((o) => ({ id: o.id, label: o.label, done: o.done })),
+      breakdown: result.breakdown,
+      medals: result.medals,
+      phases: result.phaseLogs.map((p) => ({
+        id: p.phaseId,
+        label: p.label,
+        snapshot: p.snapshot,
+        events: p.entries.map((e) => ({ tone: e.tone, text: e.text })),
+      })),
+    },
   })
   if (error) {
     console.error('[submitMissionResult]', error.message)
