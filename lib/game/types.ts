@@ -65,6 +65,7 @@ export type Mission = {
   code: string
   title: string
   org: string
+  logo: string
   vehicle: string
   location: string
   image: string
