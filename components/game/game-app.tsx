@@ -95,7 +95,7 @@ export function GameApp() {
                 <div className="xp-bar h-full transition-all" style={{ width: `${Math.max(4, lvl.progress * 100)}%` }} />
               </div>
               <p className="font-mono text-[10px] uppercase leading-none text-muted-foreground">
-                {levelTitle(lvl.level)} · {lvl.toNext} XP al Nv {lvl.level + 1}
+                {levelTitle(lvl.level)} · {lvl.toNext} de experiencia al Nv {lvl.level + 1}
               </p>
             </div>
             <span className="relative">

@@ -2,8 +2,8 @@
 
 import { Award, CircleCheck, CircleX, Lightbulb, RotateCcw, Trophy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { ResourcePanel } from './resource-panel'
-import { MEDALS } from '@/lib/game/meta'
+import { RESOURCE_ICONS } from './resource-panel'
+import { MEDALS, RESOURCE_META } from '@/lib/game/meta'
 import type { Mission, SimulationResult } from '@/lib/game/types'
 import { cn } from '@/lib/utils'
 
@@ -12,6 +12,66 @@ const STATUS_STYLE = {
   parcial: 'border-warning/60 bg-warning/10 text-warning',
   fallida: 'border-destructive/60 bg-destructive/10 text-destructive',
 } as const
+
+function ResourceSummary({ mission, result }: { mission: Mission; result: SimulationResult }) {
+  return (
+    <section aria-labelledby="resource-summary-title" className="hud flex flex-col gap-3 p-4">
+      <h3 id="resource-summary-title" className="hud-label">
+        Balance de recursos
+      </h3>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border text-left text-xs uppercase tracking-wider text-muted-foreground">
+              <th scope="col" className="py-2 pr-2 font-medium">Recurso</th>
+              <th scope="col" className="px-2 py-2 text-right font-medium">Al despegar</th>
+              <th scope="col" className="px-2 py-2 text-right font-medium">Al finalizar</th>
+              <th scope="col" className="py-2 pl-2 text-right font-medium">Cambio</th>
+            </tr>
+          </thead>
+          <tbody>
+            {mission.resources.map((spec) => {
+              const meta = RESOURCE_META[spec.key]
+              const Icon = RESOURCE_ICONS[spec.key]
+              const start = result.startResources[spec.key]
+              const end = result.finalResources[spec.key]
+              const delta = end - start
+              const good = delta > 0 === !spec.limitIsCeiling
+              const limit = spec.limitIsCeiling ? `máx ${spec.max}` : `de ${spec.max}`
+              return (
+                <tr key={spec.key} className="border-b border-border/60 last:border-0">
+                  <th scope="row" className="py-2.5 pr-2 text-left font-medium">
+                    <span className="flex items-center gap-2">
+                      <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                        <Icon className="size-4" style={{ color: meta.color }} aria-hidden />
+                      </span>
+                      <span>
+                        {meta.label}
+                        <span className="block font-mono text-[11px] font-normal text-muted-foreground">
+                          {limit} {spec.unit}
+                        </span>
+                      </span>
+                    </span>
+                  </th>
+                  <td className="px-2 py-2.5 text-right font-mono">{start}</td>
+                  <td className="px-2 py-2.5 text-right font-mono font-semibold">{end}</td>
+                  <td
+                    className={cn(
+                      'py-2.5 pl-2 text-right font-mono',
+                      delta === 0 ? 'text-muted-foreground' : good ? 'text-success' : 'text-destructive',
+                    )}
+                  >
+                    {delta === 0 ? 'sin cambio' : `${delta > 0 ? '+' : ''}${delta}`}
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  )
+}
 
 export function MissionResult({
   mission,
@@ -66,19 +126,7 @@ export function MissionResult({
           </section>
         )}
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <ResourcePanel
-            specs={mission.resources}
-            values={result.startResources}
-            title="Recursos al despegar"
-          />
-          <ResourcePanel
-            specs={mission.resources}
-            values={result.finalResources}
-            baseline={result.startResources}
-            title="Recursos restantes"
-          />
-        </div>
+        <ResourceSummary mission={mission} result={result} />
       </div>
 
       <aside className="flex flex-col gap-4 lg:sticky lg:top-20 lg:self-start">
@@ -100,7 +148,7 @@ export function MissionResult({
           </ul>
           <div className="flex gap-2 border-t border-border pt-3 text-sm">
             <span className="flex-1 rounded-lg bg-muted px-2 py-1.5 text-center">
-              <span className="block font-mono font-semibold text-accent">+{result.xp}</span> XP
+              <span className="block font-mono font-semibold text-accent">+{result.xp}</span> de experiencia
             </span>
             <span className="flex-1 rounded-lg bg-muted px-2 py-1.5 text-center">
               <span className="block font-mono font-semibold text-primary">+{pointsGained}</span> al ranking
