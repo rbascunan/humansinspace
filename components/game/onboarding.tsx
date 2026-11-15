@@ -8,6 +8,7 @@ import { Avatar } from './avatar'
 import { AvatarEditor } from './avatar-editor'
 import { InterestPicker } from './interest-picker'
 import { Flag } from './flag'
+import { HomeStats } from './home-stats'
 import { ARCHETYPES } from '@/lib/game/meta'
 import { COUNTRIES } from '@/lib/game/countries'
 import { signIn } from '@/lib/game/store'
@@ -239,6 +240,8 @@ export function Onboarding() {
             </div>
           </section>
         )}
+
+        {step === 0 && <HomeStats />}
 
         {step === 1 && (
           <section className="flex flex-col gap-6">
