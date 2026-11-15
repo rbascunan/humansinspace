@@ -8,6 +8,7 @@ import { ResourcePanel } from './resource-panel'
 import { MissionDesign } from './mission-design'
 import { MissionSimulation } from './mission-simulation'
 import { MissionResult } from './mission-result'
+import { SpaceWeather } from './space-weather'
 import { planResources, simulate, type Choices } from '@/lib/game/simulate'
 import { getAccessToken, refreshProgress } from '@/lib/game/store'
 import { submitMissionResult } from '@/app/actions'
@@ -120,6 +121,7 @@ export function MissionRunner({
               <Info icon={TriangleAlert} title="El problema" text={mission.problem} tone="warning" />
               <Info icon={Wrench} title="Resultado esperado" text={mission.expected} />
             </div>
+            <SpaceWeather />
             <p className="text-xs text-muted-foreground">
               Simulación educativa inspirada en un proyecto real. La falla es ficticia y no implica asociación oficial
               con la institución.
