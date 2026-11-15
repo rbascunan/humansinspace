@@ -176,15 +176,20 @@ export function classifyShocks(records: IpsRecord[] | null, raw: DonkiRaw): Clas
   )
   const count = `${atEarth.length} en la Tierra`
   return severe
-    ? { status: 'complicado', detail: `${count} · ligado a tormenta/CME` }
+    ? { status: 'complicado', detail: `${count} · ligado a tormenta o eyección` }
     : { status: 'medio', detail: count }
 }
 
 export function classifySun(flares: Classified, cme: Classified): Classified {
   const available = [flares, cme].filter((c) => c.status !== 'sin-datos')
-  if (available.length === 0) return { status: 'sin-datos', detail: 'Sin FLR ni CME' }
+  if (available.length === 0) return { status: 'sin-datos', detail: 'Sin llamaradas ni eyecciones' }
   const worst = available.reduce((a, b) => (RANK[b.status] > RANK[a.status] ? b : a))
-  const basis = available.length === 2 ? 'Síntesis FLR + CME' : flares.status === 'sin-datos' ? 'Solo CME' : 'Solo FLR'
+  const basis =
+    available.length === 2
+      ? 'Llamaradas + eyecciones'
+      : flares.status === 'sin-datos'
+        ? 'Solo eyecciones'
+        : 'Solo llamaradas'
   return { status: worst.status, detail: basis }
 }
 

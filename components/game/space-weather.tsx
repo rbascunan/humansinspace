@@ -45,13 +45,13 @@ const LABELS: Record<IndicatorId, string> = {
   particles: 'PARTÍCULAS',
   shocks: 'CHOQUES',
 }
-const SOURCE: Record<IndicatorId, string> = {
-  sun: 'FLR + CME',
-  flares: 'FLR',
-  cme: 'CME',
-  storms: 'GST',
-  particles: 'SEP',
-  shocks: 'IPS',
+const SUBTITLE: Record<IndicatorId, string> = {
+  sun: 'SÍNTESIS',
+  flares: 'SOLARES',
+  cme: 'DE MASA CORONAL',
+  storms: 'GEOMAGNÉTICAS',
+  particles: 'ENERGÉTICAS',
+  shocks: 'INTERPLANETARIOS',
 }
 
 function formatUpdated(iso: string | null) {
@@ -82,7 +82,7 @@ export function SpaceWeather() {
             CLIMA ESPACIAL
           </h3>
           <p className="font-mono text-[11px] uppercase tracking-widest text-accent">
-            Datos reales de clima espacial · NASA DONKI
+            Datos reales de clima espacial de la NASA
           </p>
         </div>
         <span
@@ -110,8 +110,7 @@ export function SpaceWeather() {
                 </span>
                 <span className="text-xs font-semibold tracking-wide">{indicator.label}</span>
                 <span className="font-mono text-[9px] tracking-widest text-muted-foreground">
-                  {indicator.id === 'sun' ? 'SÍNTESIS ' : ''}
-                  {SOURCE[indicator.id]}
+                  {SUBTITLE[indicator.id]}
                 </span>
                 {isLoading ? (
                   <span className="h-3 w-12 animate-pulse rounded-full bg-muted" aria-hidden="true" />
