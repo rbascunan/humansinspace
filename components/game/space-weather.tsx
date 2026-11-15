@@ -38,12 +38,12 @@ const fetcher = async (url: string): Promise<SpaceWeatherPayload> => {
 
 const PLACEHOLDER: IndicatorId[] = ['sun', 'flares', 'cme', 'storms', 'particles', 'shocks']
 const LABELS: Record<IndicatorId, string> = {
-  sun: 'SUN',
-  flares: 'FLARES',
-  cme: 'CME',
-  storms: 'STORMS',
-  particles: 'PARTICLES',
-  shocks: 'SHOCKS',
+  sun: 'SOL',
+  flares: 'LLAMARADAS',
+  cme: 'EYECCIONES',
+  storms: 'TORMENTAS',
+  particles: 'PARTÍCULAS',
+  shocks: 'CHOQUES',
 }
 const SOURCE: Record<IndicatorId, string> = {
   sun: 'FLR + CME',
@@ -72,17 +72,17 @@ export function SpaceWeather() {
       ? { label: 'SIN CONEXIÓN', className: 'border-border text-muted-foreground' }
       : data?.stale
         ? { label: 'DESACTUALIZADO', className: 'border-warning/40 bg-warning/10 text-warning' }
-        : { label: 'LIVE DATA', className: 'border-success/40 bg-success/10 text-success' }
+        : { label: 'EN VIVO', className: 'border-success/40 bg-success/10 text-success' }
 
   return (
     <section aria-labelledby="space-weather-title" className="rounded-3xl border border-border bg-card p-5">
       <header className="flex items-start justify-between gap-3">
         <div className="flex flex-col gap-0.5">
           <h3 id="space-weather-title" className="text-lg font-bold tracking-wide">
-            SPACE WEATHER
+            CLIMA ESPACIAL
           </h3>
           <p className="font-mono text-[11px] uppercase tracking-widest text-accent">
-            Real space weather data · NASA DONKI
+            Datos reales de clima espacial · NASA DONKI
           </p>
         </div>
         <span
@@ -91,7 +91,7 @@ export function SpaceWeather() {
             badge.className,
           )}
         >
-          {badge.label === 'LIVE DATA' && (
+          {badge.label === 'EN VIVO' && (
             <span className="size-1.5 animate-pulse rounded-full bg-success" aria-hidden="true" />
           )}
           {badge.label}
@@ -136,15 +136,14 @@ export function SpaceWeather() {
       </ul>
 
       <footer className="mt-5 flex flex-col gap-1 border-t border-border pt-3 text-[11px] text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-        <span className="font-mono uppercase tracking-widest text-accent/80">Data source: NASA DONKI · FLR · CME · GST · SEP · IPS</span>
+        <span className="font-mono uppercase tracking-widest text-accent/80">Fuente de datos: NASA DONKI · FLR · CME · GST · SEP · IPS</span>
         <span>
           Última actualización: {isLoading ? '…' : formatUpdated(data?.updatedAt ?? null)}
           {data?.stale ? ' (desactualizado)' : ''}
         </span>
       </footer>
       <p className="mt-2 text-[10px] leading-relaxed text-muted-foreground/80">
-        Interpretación educativa y simplificada de los últimos 7 días. No es una alerta oficial ni una predicción de
-        seguridad de la misión.
+        Datos extraídos de &quot;APIs oficiales de la NASA&quot; (últimos 7 días).
       </p>
     </section>
   )

@@ -192,11 +192,11 @@ export function buildIndicators(raw: DonkiRaw): Indicator[] {
   const flares = classifyFlares(raw.flr)
   const cme = classifyCme(raw.cme)
   return [
-    { id: 'sun', label: 'SUN', name: 'Actividad solar general', ...classifySun(flares, cme) },
-    { id: 'flares', label: 'FLARES', name: 'Llamaradas solares', ...flares },
-    { id: 'cme', label: 'CME', name: 'Eyecciones de masa coronal', ...cme },
-    { id: 'storms', label: 'STORMS', name: 'Tormentas geomagnéticas', ...classifyStorms(raw.gst) },
-    { id: 'particles', label: 'PARTICLES', name: 'Partículas solares energéticas', ...classifyParticles(raw.sep, raw) },
-    { id: 'shocks', label: 'SHOCKS', name: 'Choques interplanetarios', ...classifyShocks(raw.ips, raw) },
+    { id: 'sun', label: 'SOL', name: 'Actividad solar general', ...classifySun(flares, cme) },
+    { id: 'flares', label: 'LLAMARADAS', name: 'Llamaradas solares', ...flares },
+    { id: 'cme', label: 'EYECCIONES', name: 'Eyecciones de masa coronal', ...cme },
+    { id: 'storms', label: 'TORMENTAS', name: 'Tormentas geomagnéticas', ...classifyStorms(raw.gst) },
+    { id: 'particles', label: 'PARTÍCULAS', name: 'Partículas solares energéticas', ...classifyParticles(raw.sep, raw) },
+    { id: 'shocks', label: 'CHOQUES', name: 'Choques interplanetarios', ...classifyShocks(raw.ips, raw) },
   ]
 }
