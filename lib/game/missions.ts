@@ -1,4 +1,5 @@
 import type { Mission, SimContext } from './types'
+import { mendosat, moonbase } from './missions-extra'
 
 function add(ctx: SimContext, key: keyof SimContext['res'], delta: number) {
   ctx.res[key] = Math.round(ctx.res[key] + delta)
@@ -694,52 +695,6 @@ const mars: Mission = {
       tip: 'Llevá la carga completa y una fuente de energía que dure el viaje.',
     },
   ],
-}
-
-const moonbase: Mission = {
-  id: 'moonbase',
-  code: 'MISIÓN 02',
-  title: 'Construir una base lunar',
-  org: 'Inspirada en NASA · Programa Artemis',
-  logo: '/logos/nasa.png',
-  vehicle: 'Módulos habitables',
-  location: 'Polo sur de la Luna',
-  image: '/missions/moonbase.png',
-  summary:
-    'Diseñá una base de investigación: módulos, materiales, energía, alimentos y protección para los astronautas.',
-  objective: 'Diseñar una base que permita investigar y mantener a sus habitantes.',
-  problem: 'El presupuesto y la capacidad de transporte son limitados.',
-  expected: 'Una base habitable, con energía y comida suficientes para la tripulación.',
-  interests: ['construccion', 'arte', 'campo', 'naturaleza', 'negocios'],
-  difficulty: 'Intermedia',
-  playable: false,
-  resources: [],
-  decisions: [],
-  phases: [],
-  objectives: [],
-}
-
-const mendosat: Mission = {
-  id: 'mendosat',
-  code: 'MISIÓN 04',
-  title: 'Rescatar MendoSat',
-  org: 'Universidad de Mendoza, Argentina',
-  logo: '/logos/um.png',
-  vehicle: 'Satélite MendoSat',
-  location: 'Órbita baja sobre los Andes',
-  image: '/missions/mendosat.png',
-  summary:
-    'La comunicación con MendoSat es inestable (falla simulada). Rescatá la mayor cantidad posible de datos ambientales.',
-  objective: 'Restablecer la comunicación y recuperar mediciones ambientales.',
-  problem: 'La comunicación es inestable y los recursos disponibles son limitados.',
-  expected: 'Recuperar la mayor cantidad de información posible.',
-  interests: ['campo', 'naturaleza', 'montana', 'ciencia'],
-  difficulty: 'Avanzada',
-  playable: false,
-  resources: [],
-  decisions: [],
-  phases: [],
-  objectives: [],
 }
 
 export const MISSIONS: Mission[] = [usat1, mars, moonbase, mendosat]

@@ -15,6 +15,7 @@ import { COUNTRIES } from '@/lib/game/countries'
 import { signIn } from '@/lib/game/store'
 import { signUpPlayer } from '@/app/actions'
 import type { AvatarConfig, InterestId } from '@/lib/game/types'
+import { CreditsFooter } from './credits-footer'
 
 const STEPS = ['Ingresar', 'Tu avatar', 'Tus intereses'] as const
 const FIELD =
@@ -245,12 +246,7 @@ export function Onboarding() {
           </section>
         )}
 
-        {step === 0 && (
-          <footer className="mt-auto border-t border-border pt-6 pb-2 text-center text-sm text-muted-foreground">
-            App creada por <span className="font-semibold text-foreground">Betito Bascuñan</span> para la{' '}
-            <span className="font-semibold text-primary">NASA Space Apps Challenge 2026</span>
-          </footer>
-        )}
+        {step === 0 && <CreditsFooter className="mt-auto" />}
 
         {step === 1 && (
           <section className="flex flex-col gap-6">

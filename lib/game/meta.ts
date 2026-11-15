@@ -138,6 +138,8 @@ export const MEDALS: Record<string, { label: string; description: string }> = {
   estratega: { label: 'Ingeniero estratégico', description: 'Éxito sin eventos críticos.' },
   rescatista: { label: 'Rescatista satelital', description: 'Recuperaste el USAT-1.' },
   pionero: { label: 'Pionero marciano', description: 'Aterrizaste en Marte.' },
+  lunar: { label: 'Arquitecto lunar', description: 'Construiste una base lunar habitable.' },
+  lanzador: { label: 'Pionero mendocino', description: 'Pusiste MendoSat en órbita y hablaste con él.' },
   equipo: { label: 'Trabajo en equipo', description: 'Tu equipo completó misiones juntos.' },
 }
 

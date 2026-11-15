@@ -15,6 +15,7 @@ import { getMission } from '@/lib/game/missions'
 import { levelFromXp, levelTitle } from '@/lib/game/meta'
 import { logout, useProfile } from '@/lib/game/store'
 import { cn } from '@/lib/utils'
+import { CreditsFooter } from './credits-footer'
 
 const NAV: { id: ViewId; label: string; icon: LucideIcon }[] = [
   { id: 'universo', label: 'Universo', icon: Orbit },
@@ -145,6 +146,7 @@ export function GameApp() {
         ) : (
           <HangarView profile={profile} onDone={() => go('universo')} />
         )}
+        <CreditsFooter className="mt-10" />
       </main>
 
       <nav
