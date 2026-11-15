@@ -1,7 +1,7 @@
 'use client'
 
 import useSWR from 'swr'
-import { Atom, Globe, Orbit, Sun, Zap, type LucideIcon } from 'lucide-react'
+import { Atom, Globe, Orbit, Sun, Waves, Zap, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { IndicatorId, SpaceWeatherPayload, WeatherStatus } from '@/lib/space-weather/classify'
 
@@ -11,6 +11,7 @@ const ICONS: Record<IndicatorId, LucideIcon> = {
   cme: Orbit,
   storms: Globe,
   particles: Atom,
+  shocks: Waves,
 }
 
 const ICON_TONE: Record<IndicatorId, string> = {
@@ -19,6 +20,7 @@ const ICON_TONE: Record<IndicatorId, string> = {
   cme: 'text-accent',
   storms: 'text-success',
   particles: 'text-destructive',
+  shocks: 'text-accent',
 }
 
 const STATUS: Record<WeatherStatus, { label: string; dot: string; text: string }> = {
@@ -34,13 +36,22 @@ const fetcher = async (url: string): Promise<SpaceWeatherPayload> => {
   return res.json()
 }
 
-const PLACEHOLDER: IndicatorId[] = ['sun', 'flares', 'cme', 'storms', 'particles']
+const PLACEHOLDER: IndicatorId[] = ['sun', 'flares', 'cme', 'storms', 'particles', 'shocks']
 const LABELS: Record<IndicatorId, string> = {
   sun: 'SUN',
   flares: 'FLARES',
   cme: 'CME',
   storms: 'STORMS',
   particles: 'PARTICLES',
+  shocks: 'SHOCKS',
+}
+const SOURCE: Record<IndicatorId, string> = {
+  sun: 'FLR + CME',
+  flares: 'FLR',
+  cme: 'CME',
+  storms: 'GST',
+  particles: 'SEP',
+  shocks: 'IPS',
 }
 
 function formatUpdated(iso: string | null) {
@@ -87,7 +98,7 @@ export function SpaceWeather() {
         </span>
       </header>
 
-      <ul className="mt-5 grid grid-cols-3 gap-x-2 gap-y-5 sm:grid-cols-5">
+      <ul className="mt-5 grid grid-cols-3 gap-x-2 gap-y-5 sm:grid-cols-6">
         {(data?.indicators ?? PLACEHOLDER.map((id) => ({ id, label: LABELS[id], name: '', status: 'sin-datos' as const, detail: '' }))).map(
           (indicator) => {
             const Icon = ICONS[indicator.id]
@@ -98,6 +109,10 @@ export function SpaceWeather() {
                   <Icon className={cn('size-5', ICON_TONE[indicator.id])} aria-hidden="true" />
                 </span>
                 <span className="text-xs font-semibold tracking-wide">{indicator.label}</span>
+                <span className="font-mono text-[9px] tracking-widest text-muted-foreground">
+                  {indicator.id === 'sun' ? 'SÍNTESIS ' : ''}
+                  {SOURCE[indicator.id]}
+                </span>
                 {isLoading ? (
                   <span className="h-3 w-12 animate-pulse rounded-full bg-muted" aria-hidden="true" />
                 ) : (
@@ -121,7 +136,7 @@ export function SpaceWeather() {
       </ul>
 
       <footer className="mt-5 flex flex-col gap-1 border-t border-border pt-3 text-[11px] text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-        <span className="font-mono uppercase tracking-widest text-accent/80">Data source: NASA DONKI</span>
+        <span className="font-mono uppercase tracking-widest text-accent/80">Data source: NASA DONKI · FLR · CME · GST · SEP · IPS</span>
         <span>
           Última actualización: {isLoading ? '…' : formatUpdated(data?.updatedAt ?? null)}
           {data?.stale ? ' (desactualizado)' : ''}

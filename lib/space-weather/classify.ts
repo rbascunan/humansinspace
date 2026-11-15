@@ -23,16 +23,21 @@
  *   `linkedEvents[].activityID` against the FLR and CME records fetched above.
  *   Linked to an X flare or an R/ER CME → complicado · any other recorded SEP → medio.
  *
+ * IPS (interplanetary shocks) — `location` of each shock and `linkedEvents[].activityID`.
+ *   Shock at Earth linked to a GST or an O/R/ER CME → complicado · shock at Earth → medio ·
+ *   shocks only at other spacecraft (STEREO, etc.) → bien.
+ *
  * Empty lists: DONKI only catalogues notable events, so a successful query with no records
  *   means "no notable events catalogued in 7 days" → bien, with that wording in the detail.
  *   A failed query is never shown as bien: it falls back to cache or sin-datos.
  *
- * SUN — synthesis of FLR and CME (the worse of the two available results). It is not an
- *   independent measurement; if neither source has data → sin-datos.
+ * SUN — synthesis of FLR and CME (the worse of the two available results). It has no
+ *   endpoint of its own: six visual indicators come from five independent DONKI endpoints
+ *   (FLR, CME, GST, SEP, IPS). If neither FLR nor CME has data → sin-datos.
  */
 
 export type WeatherStatus = 'bien' | 'medio' | 'complicado' | 'sin-datos'
-export type IndicatorId = 'sun' | 'flares' | 'cme' | 'storms' | 'particles'
+export type IndicatorId = 'sun' | 'flares' | 'cme' | 'storms' | 'particles' | 'shocks'
 
 export type Indicator = {
   id: IndicatorId
@@ -61,13 +66,17 @@ type CmeAnalysis = {
 type CmeRecord = { activityID?: string; cmeAnalyses?: CmeAnalysis[] | null }
 type GstRecord = { gstID?: string; allKpIndex?: { kpIndex?: number | null }[] | null }
 type SepRecord = { sepID?: string; linkedEvents?: { activityID?: string }[] | null }
+type IpsRecord = { activityID?: string; location?: string | null; linkedEvents?: { activityID?: string }[] | null }
 
 export type DonkiRaw = {
   flr: FlrRecord[] | null
   cme: CmeRecord[] | null
   gst: GstRecord[] | null
   sep: SepRecord[] | null
+  ips: IpsRecord[] | null
 }
+
+export const EMPTY_RAW: DonkiRaw = { flr: null, cme: null, gst: null, sep: null, ips: null }
 
 const RANK: Record<WeatherStatus, number> = { 'sin-datos': -1, bien: 0, medio: 1, complicado: 2 }
 const NO_EVENTS = 'Sin eventos notables en 7 días'
@@ -151,6 +160,26 @@ export function classifyParticles(records: SepRecord[] | null, raw: DonkiRaw): C
     : { status: 'medio', detail: `${count} registrado${records.length === 1 ? '' : 's'}` }
 }
 
+export function classifyShocks(records: IpsRecord[] | null, raw: DonkiRaw): Classified {
+  if (!records) return { status: 'sin-datos', detail: 'Fuente no disponible' }
+  if (records.length === 0) return { status: 'bien', detail: NO_EVENTS }
+  const atEarth = records.filter((r) => r.location?.toLowerCase().includes('earth'))
+  if (atEarth.length === 0) {
+    return { status: 'bien', detail: `${records.length} lejos de la Tierra` }
+  }
+  const storms = new Set((raw.gst ?? []).map((g) => g.gstID))
+  const fastCmes = new Set(
+    (raw.cme ?? []).filter((c) => ['O', 'R', 'ER'].includes(evaluateCme(c)?.type ?? '')).map((c) => c.activityID),
+  )
+  const severe = atEarth.some((r) =>
+    (r.linkedEvents ?? []).some((l) => l.activityID && (storms.has(l.activityID) || fastCmes.has(l.activityID))),
+  )
+  const count = `${atEarth.length} en la Tierra`
+  return severe
+    ? { status: 'complicado', detail: `${count} · ligado a tormenta/CME` }
+    : { status: 'medio', detail: count }
+}
+
 export function classifySun(flares: Classified, cme: Classified): Classified {
   const available = [flares, cme].filter((c) => c.status !== 'sin-datos')
   if (available.length === 0) return { status: 'sin-datos', detail: 'Sin FLR ni CME' }
@@ -168,5 +197,6 @@ export function buildIndicators(raw: DonkiRaw): Indicator[] {
     { id: 'cme', label: 'CME', name: 'Eyecciones de masa coronal', ...cme },
     { id: 'storms', label: 'STORMS', name: 'Tormentas geomagnéticas', ...classifyStorms(raw.gst) },
     { id: 'particles', label: 'PARTICLES', name: 'Partículas solares energéticas', ...classifyParticles(raw.sep, raw) },
+    { id: 'shocks', label: 'SHOCKS', name: 'Choques interplanetarios', ...classifyShocks(raw.ips, raw) },
   ]
 }

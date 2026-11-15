@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
-import { buildIndicators, type DonkiRaw, type SpaceWeatherPayload } from '@/lib/space-weather/classify'
+import { buildIndicators, EMPTY_RAW, type DonkiRaw, type SpaceWeatherPayload } from '@/lib/space-weather/classify'
 
 const DONKI_BASE = 'https://api.nasa.gov/DONKI'
-const ENDPOINTS = { flr: 'FLR', cme: 'CME', gst: 'GST', sep: 'SEP' } as const
+const ENDPOINTS = { flr: 'FLR', cme: 'CME', gst: 'GST', sep: 'SEP', ips: 'IPS' } as const
 type Key = keyof typeof ENDPOINTS
 
 const FRESH_MS = 30 * 60 * 1000
@@ -36,7 +36,7 @@ async function buildPayload(): Promise<SpaceWeatherPayload> {
   const keys = Object.keys(ENDPOINTS) as Key[]
   const results = await Promise.allSettled(keys.map((k) => fetchSource(k, window.startDate, window.endDate, apiKey)))
 
-  const raw: DonkiRaw = { flr: null, cme: null, gst: null, sep: null }
+  const raw: DonkiRaw = { ...EMPTY_RAW }
   let stale = false
   const freshTimes: number[] = []
   const now = Date.now()
@@ -83,7 +83,7 @@ export async function GET() {
   }
 
   const payload: SpaceWeatherPayload = lastPayload?.payload ?? {
-    indicators: buildIndicators({ flr: null, cme: null, gst: null, sep: null }),
+    indicators: buildIndicators(EMPTY_RAW),
     updatedAt: null,
     stale: false,
     window: { startDate: '', endDate: '' },
