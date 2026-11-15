@@ -7,11 +7,16 @@ import { Flag } from './flag'
 
 const fmt = new Intl.NumberFormat('es-AR')
 
-function StatCell({ value, label }: { value: string; label: string }) {
+function StatCell({ value, label, delay }: { value: string; label: string; delay: number }) {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-2 px-4 py-6 text-center">
-      <dd className="text-4xl font-bold tabular-nums text-foreground md:text-5xl">{value}</dd>
-      <dt className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">{label}</dt>
+    <div
+      className="animate-rise flex flex-1 flex-col items-center justify-center gap-1 px-2 py-4 text-center"
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      <dd className="text-3xl font-bold tabular-nums text-foreground">{value}</dd>
+      <dt className="font-mono text-[10px] uppercase leading-tight tracking-[0.15em] text-muted-foreground">
+        {label}
+      </dt>
     </div>
   )
 }
@@ -26,15 +31,31 @@ export function HomeStats() {
   const value = (n: number | undefined) => (n === undefined ? placeholder : fmt.format(n))
 
   return (
-    <section aria-labelledby="home-stats-title" className="flex flex-col gap-3">
-      <h2 id="home-stats-title" className="font-mono text-xs uppercase tracking-[0.3em] text-accent">
+    <section
+      aria-labelledby="home-stats-title"
+      className="animate-rise flex w-full max-w-md flex-col gap-2"
+      style={{ animationDelay: '150ms' }}
+    >
+      <h2
+        id="home-stats-title"
+        className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.3em] text-accent"
+      >
+        <span className="size-2 animate-pulse rounded-full bg-accent" aria-hidden="true" />
         La comunidad en vivo
       </h2>
-      <dl className="flex flex-col divide-y divide-border rounded-2xl border-2 border-primary bg-card/80 backdrop-blur md:flex-row md:divide-x md:divide-y-0">
-        <StatCell value={value(data?.players)} label="Exploradores" />
-        <StatCell value={value(data?.missions)} label="Misiones realizadas" />
-        <StatCell value={value(data?.medals)} label="Medallas entregadas" />
-        <div className="flex flex-1 flex-col items-center justify-center gap-3 px-4 py-6 text-center">
+      <dl className="flex flex-col overflow-hidden rounded-2xl border-2 border-primary bg-card/80 backdrop-blur">
+        <div className="flex divide-x divide-border">
+          <StatCell value={value(data?.players)} label="Exploradores" delay={300} />
+          <StatCell value={value(data?.missions)} label="Misiones" delay={420} />
+          <StatCell value={value(data?.medals)} label="Medallas" delay={540} />
+        </div>
+        <div
+          className="animate-rise flex flex-col gap-2 border-t border-border px-4 py-3"
+          style={{ animationDelay: '660ms' }}
+        >
+          <dt className="text-left font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+            Países con más participantes
+          </dt>
           <dd className="w-full">
             {data && data.topCountries.length > 0 ? (
               <ol className="flex flex-col gap-1.5">
@@ -50,12 +71,9 @@ export function HomeStats() {
                 ))}
               </ol>
             ) : (
-              <span className="text-4xl font-bold text-foreground md:text-5xl">{placeholder}</span>
+              <span className="text-sm text-muted-foreground">{placeholder}</span>
             )}
           </dd>
-          <dt className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-            Países con más participantes
-          </dt>
         </div>
       </dl>
       {error && <p className="text-xs text-muted-foreground">No se pudieron cargar las estadísticas.</p>}

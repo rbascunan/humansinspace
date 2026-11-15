@@ -204,8 +204,69 @@
   animation: float-y 3.5s ease-in-out infinite;
 }
 
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(48px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes drift-rocket {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(24deg);
+  }
+  50% {
+    transform: translate(-10px, -12px) rotate(24deg);
+  }
+}
+
+@keyframes drift-satellite {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(-8deg);
+  }
+  50% {
+    transform: translate(8px, 4px) rotate(4deg);
+  }
+}
+
+@keyframes flame {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.animate-rise {
+  animation: rise-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-drift-rocket {
+  animation: drift-rocket 6s ease-in-out infinite;
+}
+
+.animate-drift-satellite {
+  animation: drift-satellite 9s ease-in-out infinite;
+}
+
+.animate-flame {
+  animation: flame 0.4s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .animate-float {
+  .animate-float,
+  .animate-rise,
+  .animate-drift-rocket,
+  .animate-drift-satellite,
+  .animate-flame {
     animation: none;
   }
 }
