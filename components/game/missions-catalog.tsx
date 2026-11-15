@@ -51,6 +51,9 @@ export function MissionsCatalog({ profile, onPlay }: { profile: Profile; onPlay:
                   )}
                   <span className="rounded-full bg-background/80 px-2.5 py-1 text-xs backdrop-blur">{m.difficulty}</span>
                 </div>
+                <div className="absolute bottom-3 left-3 flex h-10 items-center rounded-lg bg-background/70 px-3 backdrop-blur">
+                  <Image src={m.logo} alt={`Logo ${m.org}`} width={120} height={32} className="h-6 w-auto max-w-28 object-contain" />
+                </div>
                 {record && (
                   <span className="absolute right-3 top-3 rounded-full bg-background/80 px-2.5 py-1 font-mono text-xs backdrop-blur">
                     {STATUS_LABEL[record.bestStatus]} · {record.bestScore} pts

@@ -102,7 +102,16 @@ export function MissionRunner({
               <div className="absolute inset-x-0 bottom-0 flex flex-col gap-1 p-5">
                 <span className="font-mono text-xs uppercase tracking-widest text-accent">{mission.code}</span>
                 <h2 className="text-balance text-2xl font-bold md:text-4xl">{mission.title}</h2>
-                <p className="text-sm text-muted-foreground">{mission.org}</p>
+                <div className="flex items-center gap-3">
+                  <Image
+                    src={mission.logo}
+                    alt={`Logo ${mission.org}`}
+                    width={140}
+                    height={36}
+                    className="h-7 w-auto max-w-32 object-contain"
+                  />
+                  <p className="text-sm text-muted-foreground">{mission.org}</p>
+                </div>
               </div>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
