@@ -67,7 +67,7 @@ function MyProgress({ profile }: { profile: Profile }) {
             <span className="font-semibold">
               Nivel {lvl.level} · {levelTitle(lvl.level)}
             </span>
-            <span className="font-mono text-muted-foreground">{lvl.toNext} XP para subir</span>
+            <span className="font-mono text-muted-foreground">{lvl.toNext} de experiencia para subir</span>
           </div>
           <div className="mt-1.5 h-3 overflow-hidden rounded-full bg-muted">
             <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${lvl.progress * 100}%` }} />
@@ -75,7 +75,7 @@ function MyProgress({ profile }: { profile: Profile }) {
         </div>
         <div className="grid w-full grid-cols-3 gap-2">
           <Stat label="Puntos" value={profile.points} />
-          <Stat label="XP" value={profile.xp} />
+          <Stat label="Experiencia" value={profile.xp} />
           <Stat label="Completas" value={completed} />
         </div>
         <p className="text-xs text-muted-foreground">{attempts} intentos en total. ¡Cada intento enseña algo nuevo!</p>
