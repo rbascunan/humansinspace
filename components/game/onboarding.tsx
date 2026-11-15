@@ -9,6 +9,7 @@ import { AvatarEditor } from './avatar-editor'
 import { InterestPicker } from './interest-picker'
 import { Flag } from './flag'
 import { HomeStats } from './home-stats'
+import { HeroSpaceScene } from './hero-space-scene'
 import { ARCHETYPES } from '@/lib/game/meta'
 import { COUNTRIES } from '@/lib/game/countries'
 import { signIn } from '@/lib/game/store'
@@ -227,21 +228,22 @@ export function Onboarding() {
                 </form>
               </div>
             </div>
-            <div className="flex items-end justify-center gap-2">
-              {ARCHETYPES.slice(0, 3).map((a, i) => (
-                <Avatar
-                  key={a.id}
-                  config={a.avatar}
-                  suited={i === 1}
-                  className="animate-float h-32 w-auto md:h-48"
-                  title={a.label}
-                />
-              ))}
+            <div className="flex w-full flex-col items-center gap-5 md:w-auto md:max-w-md md:flex-1">
+              <HeroSpaceScene>
+                {ARCHETYPES.slice(0, 3).map((a, i) => (
+                  <Avatar
+                    key={a.id}
+                    config={a.avatar}
+                    suited={i === 1}
+                    className="animate-float h-32 w-auto md:h-40"
+                    title={a.label}
+                  />
+                ))}
+              </HeroSpaceScene>
+              <HomeStats />
             </div>
           </section>
         )}
-
-        {step === 0 && <HomeStats />}
 
         {step === 0 && (
           <footer className="mt-auto border-t border-border pt-6 pb-2 text-center text-sm text-muted-foreground">
